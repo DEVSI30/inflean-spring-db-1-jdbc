@@ -1,12 +1,12 @@
 package hello.jdbc.service;
 
 import hello.jdbc.domain.Member;
-import hello.jdbc.repository.MemberRepositoryV1;
-import hello.jdbc.repository.MemberRepositoryV2;
+import hello.jdbc.repository.MemberRepositoryV3;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.sql.SQLException;
@@ -18,20 +18,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * 기본 동작, 트랜잭션이 없어서 문제 발생
  */
-class MemberServiceV2Test {
+class MemberServiceV3_1Test {
     public static final String MEMBER_A = "memberA";
     public static final String MEMBER_B = "memberB";
     public static final String MEMBER_EX = "ex";
 
-    private MemberRepositoryV2 memberRepository;
-    private MemberServiceV2 memberService;
+    private MemberRepositoryV3 memberRepository;
+    private MemberServiceV3_1 memberService;
 
 
     @BeforeEach
     void beforeEach() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource(URL, USERNAME, PASSWORD);
-        memberRepository = new MemberRepositoryV2(dataSource);
-        memberService = new MemberServiceV2(memberRepository, dataSource);
+        memberRepository = new MemberRepositoryV3(dataSource);
+        DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+        memberService = new MemberServiceV3_1(transactionManager, memberRepository);
     }
 
     @AfterEach
@@ -79,7 +80,7 @@ class MemberServiceV2Test {
         Member findMemberEX = memberRepository.findById(memberEX.getMemberId());
         assertThat(findMemberA.getMoney()).isEqualTo(10000);
         assertThat(findMemberEX.getMoney()).isEqualTo(10000);
-        
+
     }
 
 }
